@@ -5,597 +5,261 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>أسئلة المحاضرة</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+:root {
+  --bg:#f0f2f8;--surface:#fff;--surface2:#f5f7fc;--border:#dde2f0;
+  --accent:#3b6fd4;--accent-bg:rgba(59,111,212,0.08);
+  --success:#16a34a;--success-bg:rgba(22,163,74,0.10);
+  --error:#dc2626;--error-bg:rgba(220,38,38,0.10);
+  --text:#1a1d2e;--text2:#6b7280;
+  --hbg:#3b6fd4;--htxt:#fff;
+  --shadow:0 2px 12px rgba(0,0,0,0.07);--r:12px;
+}
+[data-theme="dark"]{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#222536;--border:#2e3350;
+  --accent:#4f8ef7;--accent-bg:rgba(79,142,247,0.10);
+  --success:#2dd4a0;--success-bg:rgba(45,212,160,0.10);
+  --error:#f7546a;--error-bg:rgba(247,84,106,0.10);
+  --text:#e8eaf6;--text2:#8b90b8;
+  --hbg:#1a1d27;--htxt:#e8eaf6;
+  --shadow:0 2px 12px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
 
-  :root {
-    --bg:        #0f1117;
-    --surface:   #1a1d27;
-    --surface2:  #222536;
-    --border:    #2e3350;
-    --accent:    #4f8ef7;
-    --accent2:   #7c5cbf;
-    --success:   #2dd4a0;
-    --error:     #f7546a;
-    --text:      #e8eaf6;
-    --text2:     #8b90b8;
-    --radius:    14px;
-  }
+/* topbar */
+.topbar{background:var(--hbg);color:var(--htxt);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.topbar-credit{font-size:12px;font-weight:600;opacity:.92}
+.theme-btn{background:rgba(255,255,255,.18);border:none;border-radius:20px;padding:4px 12px;color:var(--htxt);font-size:12px;cursor:pointer;font-family:inherit;transition:background .2s}
+.theme-btn:hover{background:rgba(255,255,255,.3)}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* subheader */
+.subheader{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 16px;display:flex;align-items:center;gap:10px}
+.subheader-icon{font-size:18px}
+.subheader-title{font-size:13px;font-weight:600}
+.subheader-sub{font-size:11px;color:var(--text2);margin-top:1px}
 
-  body {
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* progress */
+.pbar-wrap{padding:10px 16px 0}
+.pbar-info{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px}
+.pbar-track{height:3px;background:var(--border);border-radius:99px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#7c5cbf);border-radius:99px;transition:width .5s ease}
 
-  /* ─── Header ─── */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 18px;
-    position: sticky; top: 0; z-index: 100;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .header-icon { font-size: 22px; }
-  .header-info { flex: 1; }
-  .header-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .header-sub   { font-size: 12px; color: var(--text2); margin-top: 2px; }
+/* questions */
+.qwrap{padding:12px 12px 140px;display:flex;flex-direction:column;gap:16px}
 
-  /* ─── Progress bar ─── */
-  .progress-wrap {
-    padding: 12px 18px 0;
-  }
-  .progress-info {
-    display: flex; justify-content: space-between;
-    font-size: 12px; color: var(--text2); margin-bottom: 6px;
-  }
-  .progress-track {
-    height: 4px; background: var(--border); border-radius: 99px; overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    border-radius: 99px;
-    transition: width 0.4s cubic-bezier(.4,0,.2,1);
-  }
+/* card */
+.qcard{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:130px}
+.qhdr{padding:10px 14px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.qnum{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.qtext{font-size:14px;line-height:1.75;padding:12px 14px;color:var(--text)}
+.opts{padding:0 10px 10px;display:flex;flex-direction:column;gap:7px}
 
-  /* ─── Question card ─── */
-  .card-wrap { padding: 16px 14px 120px; }
+/* option */
+.opt{border:2px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;display:flex;align-items:flex-start;gap:9px;transition:border-color .15s,background .15s;font-size:13px;line-height:1.6;background:var(--surface2)}
+.opt:hover:not(.disabled){border-color:var(--accent);background:var(--accent-bg)}
+.oletter{min-width:24px;height:24px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;transition:background .15s,color .15s;color:var(--text2)}
+.otext{flex:1;padding-top:2px}
+.opt.correct{border-color:var(--success)!important;background:var(--success-bg)!important}
+.opt.correct .oletter{background:var(--success);color:#fff}
+.opt.wrong{border-color:var(--error)!important;background:var(--error-bg)!important}
+.opt.wrong .oletter{background:var(--error);color:#fff}
+.opt.disabled{pointer-events:none}
 
-  .q-number {
-    font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
-    color: var(--accent); text-transform: uppercase; margin-bottom: 10px;
-  }
+/* summary bar */
+.sbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:8px;box-shadow:0 -4px 20px rgba(0,0,0,.1)}
+.sbar.show{display:flex}
+.stats{display:flex;gap:8px}
+.stat{flex:1;padding:9px 6px;background:var(--surface2);border-radius:10px;text-align:center;border:1px solid var(--border)}
+.snum{font-size:20px;font-weight:700}
+.sdesc{font-size:10px;color:var(--text2);margin-top:1px}
+.sc .snum{color:var(--success)}.sw .snum{color:var(--error)}.sp .snum{color:var(--accent)}
+.sendbtn{padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .18s,transform .18s}
+.sendbtn:active{opacity:.85;transform:scale(.98)}
 
-  .q-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 14px;
-    line-height: 1.75;
-    font-size: 15px;
-  }
-
-  /* ─── Options ─── */
-  .options { display: flex; flex-direction: column; gap: 10px; }
-
-  .option {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    cursor: pointer;
-    display: flex; align-items: flex-start; gap: 12px;
-    transition: all 0.18s ease;
-    font-size: 14px;
-    line-height: 1.6;
-    position: relative;
-    overflow: hidden;
-  }
-  .option::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.18s;
-  }
-  .option:active::before { opacity: 0.06; }
-
-  .option-letter {
-    min-width: 30px; height: 30px;
-    border-radius: 50%;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; color: var(--text2);
-    transition: all 0.18s;
-    flex-shrink: 0;
-  }
-  .option-text { flex: 1; padding-top: 4px; }
-
-  .option.selected {
-    border-color: var(--accent);
-    background: rgba(79,142,247,0.08);
-  }
-  .option.selected .option-letter {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  .option.correct {
-    border-color: var(--success);
-    background: rgba(45,212,160,0.08);
-  }
-  .option.correct .option-letter {
-    background: var(--success);
-    border-color: var(--success);
-    color: #fff;
-  }
-
-  .option.wrong {
-    border-color: var(--error);
-    background: rgba(247,84,106,0.08);
-  }
-  .option.wrong .option-letter {
-    background: var(--error);
-    border-color: var(--error);
-    color: #fff;
-  }
-
-  .option.disabled { pointer-events: none; }
-
-  /* ─── Feedback badge ─── */
-  .feedback {
-    display: none;
-    align-items: center; gap: 8px;
-    margin-top: 14px;
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 14px; font-weight: 500;
-  }
-  .feedback.show { display: flex; }
-  .feedback.correct-fb { background: rgba(45,212,160,0.12); color: var(--success); border: 1px solid rgba(45,212,160,0.25); }
-  .feedback.wrong-fb   { background: rgba(247,84,106,0.12); color: var(--error);   border: 1px solid rgba(247,84,106,0.25); }
-
-  /* ─── Bottom bar ─── */
-  .bottom-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex; gap: 10px;
-  }
-
-  .btn {
-    flex: 1; padding: 14px;
-    border: none; border-radius: var(--radius);
-    font-family: inherit; font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: all 0.18s;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    color: #fff;
-  }
-  .btn-primary:active { opacity: 0.85; transform: scale(0.98); }
-  .btn-primary:disabled { opacity: 0.4; pointer-events: none; }
-
-  .btn-outline {
-    background: transparent;
-    border: 1.5px solid var(--border);
-    color: var(--text2);
-    flex: 0 0 auto; width: 50px;
-    font-size: 20px;
-  }
-  .btn-outline:active { background: var(--surface2); }
-
-  /* ─── Summary screen ─── */
-  .summary {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 120px;
-    text-align: center;
-  }
-  .summary.show { display: flex; }
-
-  .summary-ring {
-    width: 130px; height: 130px;
-    border-radius: 50%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    margin-bottom: 24px;
-    position: relative;
-  }
-  .summary-ring svg {
-    position: absolute; inset: 0;
-    transform: rotate(-90deg);
-  }
-  .summary-ring circle {
-    fill: none;
-    stroke-width: 8;
-    stroke-linecap: round;
-  }
-  .ring-track  { stroke: var(--border); }
-  .ring-fill   { stroke: url(#ringGrad); transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1); }
-  .summary-pct { font-size: 34px; font-weight: 700; color: var(--text); }
-  .summary-lbl { font-size: 12px; color: var(--text2); }
-
-  .summary-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
-  .summary-sub   { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
-
-  .stats-row {
-    display: flex; gap: 12px; width: 100%; margin-bottom: 28px;
-  }
-  .stat-box {
-    flex: 1; padding: 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-  }
-  .stat-num  { font-size: 28px; font-weight: 700; }
-  .stat-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
-  .stat-box.s-correct .stat-num { color: var(--success); }
-  .stat-box.s-wrong   .stat-num { color: var(--error); }
-
-  /* ─── Loading ─── */
-  .loading {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 60vh; gap: 16px;
-    font-size: 14px; color: var(--text2);
-  }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .error-state {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 60vh; gap: 12px; padding: 24px;
-    text-align: center;
-  }
-  .error-icon { font-size: 48px; }
-  .error-title { font-size: 18px; font-weight: 600; }
-  .error-msg   { font-size: 13px; color: var(--text2); line-height: 1.6; }
+/* loading/error */
+.loading,.errs{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:12px;padding:24px;text-align:center}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading span{font-size:13px;color:var(--text2)}
+.eicon{font-size:42px}.etitle{font-size:16px;font-weight:600}.emsg{font-size:12px;color:var(--text2);line-height:1.6;max-width:280px;white-space:pre-line}
 </style>
 </head>
-<body>
+<body data-theme="light">
 
-<!-- Loading -->
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <span>جاري تحميل الأسئلة...</span>
+<div class="topbar">
+  <div class="topbar-credit">إعداد عبدالرحمن حسن</div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 ليلي</button>
 </div>
 
-<!-- Error -->
-<div class="error-state" id="errorState" style="display:none">
-  <div class="error-icon">⚠️</div>
-  <div class="error-title">تعذّر التحميل</div>
-  <div class="error-msg" id="errorMsg">حدث خطأ أثناء تحميل الأسئلة</div>
+<div class="loading" id="loading"><div class="spinner"></div><span>جاري تحميل الأسئلة...</span></div>
+
+<div class="errs" id="errState" style="display:none">
+  <div class="eicon">⚠️</div>
+  <div class="etitle">تعذّر التحميل</div>
+  <div class="emsg" id="errMsg"></div>
 </div>
 
-<!-- Quiz UI -->
 <div id="quizUI" style="display:none">
-  <div class="header">
-    <div class="header-icon">📖</div>
-    <div class="header-info">
-      <div class="header-title" id="headerTitle">المحاضرة</div>
-      <div class="header-sub"  id="headerSub">أسئلة طويلة</div>
+  <div class="subheader">
+    <div class="subheader-icon">📖</div>
+    <div>
+      <div class="subheader-title" id="hTitle">المحاضرة</div>
+      <div class="subheader-sub"   id="hSub">أسئلة طويلة</div>
     </div>
   </div>
-
-  <div class="progress-wrap">
-    <div class="progress-info">
-      <span id="progressText">السؤال 1 من 1</span>
-      <span id="progressPct">0%</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill" style="width:0%"></div>
-    </div>
+  <div class="pbar-wrap">
+    <div class="pbar-info"><span id="pText">0 / 0 تمت الإجابة</span><span id="pPct">0%</span></div>
+    <div class="pbar-track"><div class="pbar-fill" id="pFill" style="width:0%"></div></div>
   </div>
-
-  <div class="card-wrap" id="cardWrap">
-    <div class="q-number" id="qNumber">السؤال ١</div>
-    <div class="q-card"   id="qText"></div>
-    <div class="options"  id="optionsWrap"></div>
-    <div class="feedback" id="feedback"></div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="btn btn-outline" id="btnBack" onclick="goBack()">‹</button>
-    <button class="btn btn-primary" id="btnNext" disabled onclick="handleNext()">اختر إجابة</button>
-  </div>
+  <div class="qwrap" id="qwrap"></div>
 </div>
 
-<!-- Summary -->
-<div class="summary" id="summaryScreen">
-  <div class="summary-ring">
-    <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%"   stop-color="#7c5cbf"/>
-          <stop offset="100%" stop-color="#4f8ef7"/>
-        </linearGradient>
-      </defs>
-      <circle class="ring-track" cx="65" cy="65" r="56"/>
-      <circle class="ring-fill"  cx="65" cy="65" r="56" id="ringCircle"
-        stroke-dasharray="351.86" stroke-dashoffset="351.86"/>
-    </svg>
-    <div class="summary-pct" id="summaryPct">0%</div>
-    <div class="summary-lbl">النتيجة</div>
+<div class="sbar" id="sbar">
+  <div class="stats">
+    <div class="stat sc"><div class="snum" id="sC">0</div><div class="sdesc">✅ صحيح</div></div>
+    <div class="stat sw"><div class="snum" id="sW">0</div><div class="sdesc">❌ خطأ</div></div>
+    <div class="stat sp"><div class="snum" id="sP">0%</div><div class="sdesc">🎯 الدقة</div></div>
   </div>
-
-  <div class="summary-title" id="summaryTitle">أحسنت!</div>
-  <div class="summary-sub"   id="summarySub"></div>
-
-  <div class="stats-row">
-    <div class="stat-box s-correct">
-      <div class="stat-num" id="statCorrect">0</div>
-      <div class="stat-desc">✅ صحيح</div>
-    </div>
-    <div class="stat-box s-wrong">
-      <div class="stat-num" id="statWrong">0</div>
-      <div class="stat-desc">❌ خطأ</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-num" id="statTotal">0</div>
-      <div class="stat-desc">📝 المجموع</div>
-    </div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="btn btn-primary" onclick="sendResults()">إرسال النتائج للبوت ✓</button>
-  </div>
+  <button class="sendbtn" onclick="sendResults()">إرسال النتائج للبوت ✓</button>
 </div>
 
 <script>
-// ─── Telegram Web App Init ───────────────────────────────────────────
-const tg = window.Telegram?.WebApp;
-if (tg) {
-  tg.ready();
-  tg.expand();
-  tg.setHeaderColor('#0f1117');
-  tg.setBackgroundColor('#0f1117');
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const LETTERS=['A','B','C','D','E','F'];
+let questions=[],answers=[],answeredCount=0,lectureName='',subjectName='';
+let isDark=false;
+
+function toggleTheme(){
+  isDark=!isDark;
+  document.body.dataset.theme=isDark?'dark':'light';
+  document.getElementById('themeBtn').textContent=isDark?'☀️ نهاري':'🌙 ليلي';
+  if(tg){tg.setHeaderColor(isDark?'#1a1d27':'#3b6fd4');tg.setBackgroundColor(isDark?'#0f1117':'#f0f2f8');}
 }
 
-// ─── State ───────────────────────────────────────────────────────────
-let questions   = [];
-let current     = 0;
-let answers     = [];   // {selected, correct}
-let answered    = false;
-let lectureName = '';
-let subjectName = '';
-
-const LETTERS = ['A','B','C','D','E','F'];
-
-// ─── Boot ────────────────────────────────────────────────────────────
-(async function boot() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const key    = params.get('k');
-    const apiUrl = params.get('api');
-
-    if (!key || !apiUrl) {
-      return showError('لم يتم استلام بيانات الأسئلة. افتح هذه الصفحة من خلال البوت.');
+(async function boot(){
+  try{
+    const p=new URLSearchParams(window.location.search);
+    const key=p.get('k'),apiUrl=p.get('api');
+    if(!key||!apiUrl)return err('لم يتم استلام بيانات الأسئلة.
+افتح هذه الصفحة من خلال البوت.');
+    const res=await fetch(decodeURIComponent(apiUrl)+'/quiz?k='+encodeURIComponent(key));
+    if(!res.ok){
+      const e=await res.json().catch(()=>({}));
+      return err(e.error==='session not found or expired'?'انتهت صلاحية الجلسة.
+اطلب من البوت إرسال المحاضرة مجدداً.':'تعذّر تحميل الأسئلة.');
     }
-
-    document.querySelector('.loading span').textContent = 'جاري تحميل الأسئلة من السيرفر...';
-
-    const res = await fetch(`${decodeURIComponent(apiUrl)}/quiz?k=${encodeURIComponent(key)}`);
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      return showError(err.error === 'session not found or expired'
-        ? 'انتهت صلاحية الرابط. اطلب من البوت إرسال المحاضرة مجدداً.'
-        : 'تعذّر تحميل الأسئلة. حاول مرة أخرى.');
-    }
-
-    const data = await res.json();
-    if (!Array.isArray(data.questions) || data.questions.length === 0)
-      return showError('لا توجد أسئلة في هذه الجلسة.');
-
-    questions   = data.questions;
-    lectureName = data.lectureName || 'المحاضرة';
-    subjectName = data.subjectName || '';
-
-    document.getElementById('headerTitle').textContent = lectureName;
-    document.getElementById('headerSub').textContent   = subjectName || 'أسئلة طويلة';
-
-    hide('loading');
-    show('quizUI');
-    renderQuestion(0);
-  } catch (e) {
-    showError('خطأ في الاتصال بالسيرفر: ' + e.message);
-  }
+    const d=await res.json();
+    if(!Array.isArray(d.questions)||d.questions.length===0)return err('لا توجد أسئلة في هذه الجلسة.');
+    questions=d.questions;
+    lectureName=d.lectureName||'المحاضرة';
+    subjectName=d.subjectName||'';
+    answers=new Array(questions.length).fill(null);
+    document.getElementById('hTitle').textContent=lectureName;
+    document.getElementById('hSub').textContent=(subjectName?subjectName+' — ':'')+questions.length+' سؤال طويل';
+    hide('loading');show('quizUI');
+    render();updatePbar();
+    if(tg){tg.setHeaderColor('#3b6fd4');tg.setBackgroundColor('#f0f2f8');}
+  }catch(e){err('خطأ في الاتصال:
+'+e.message);}
 })();
 
-// ─── Render question ─────────────────────────────────────────────────
-function renderQuestion(idx) {
-  current  = idx;
-  answered = false;
-  const q  = questions[idx];
-  const total = questions.length;
-
-  // Progress
-  const pct = Math.round((idx / total) * 100);
-  document.getElementById('progressText').textContent = `السؤال ${idx + 1} من ${total}`;
-  document.getElementById('progressPct').textContent  = pct + '%';
-  document.getElementById('progressFill').style.width = pct + '%';
-
-  document.getElementById('qNumber').textContent = `السؤال ${toArabicNum(idx + 1)}`;
-  document.getElementById('qText').textContent   = q.question;
-
-  // Feedback reset
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback';
-  fb.textContent = '';
-
-  // Options
-  const wrap = document.getElementById('optionsWrap');
-  wrap.innerHTML = '';
-  q.options.forEach((opt, i) => {
-    const div = document.createElement('div');
-    div.className = 'option';
-    div.dataset.idx = i;
-    div.innerHTML = `
-      <div class="option-letter">${LETTERS[i]}</div>
-      <div class="option-text">${opt}</div>`;
-    div.addEventListener('click', () => selectOption(i));
-    wrap.appendChild(div);
+function render(){
+  const w=document.getElementById('qwrap');w.innerHTML='';
+  questions.forEach((q,qi)=>{
+    const card=document.createElement('div');
+    card.className='qcard';card.id='qc'+qi;
+    card.innerHTML=
+      '<div class="qhdr"><span class="qnum">سؤال '+(qi+1)+'</span></div>'+
+      '<div class="qtext">'+escH(q.question)+'</div>'+
+      '<div class="opts" id="o'+qi+'"></div>';
+    w.appendChild(card);
+    const ow=document.getElementById('o'+qi);
+    q.options.forEach((opt,oi)=>{
+      const el=document.createElement('div');
+      el.className='opt';el.dataset.qi=qi;el.dataset.oi=oi;
+      el.innerHTML='<div class="oletter">'+LETTERS[oi]+'</div><div class="otext">'+escH(opt)+'</div>';
+      el.addEventListener('click',()=>pick(qi,oi));
+      ow.appendChild(el);
+    });
   });
-
-  // Buttons
-  const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = 'اختر إجابة';
-  btnNext.disabled = true;
-  document.getElementById('btnBack').style.display = idx > 0 ? '' : 'none';
 }
 
-// ─── Option selection ────────────────────────────────────────────────
-function selectOption(idx) {
-  if (answered) return;
-  document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
-  const el = document.querySelector(`.option[data-idx="${idx}"]`);
-  if (el) el.classList.add('selected');
-
-  const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = 'تأكيد الإجابة';
-  btnNext.disabled = false;
-  btnNext.dataset.pending = idx;
-}
-
-// ─── Confirm / Next ──────────────────────────────────────────────────
-function handleNext() {
-  const btnNext = document.getElementById('btnNext');
-
-  if (!answered) {
-    // Confirm answer
-    const selected = parseInt(btnNext.dataset.pending ?? '-1');
-    if (selected === -1) return;
-    submitAnswer(selected);
-  } else {
-    // Next question
-    if (current + 1 < questions.length) {
-      renderQuestion(current + 1);
-    } else {
-      showSummary();
-    }
-  }
-}
-
-function submitAnswer(selected) {
-  answered = true;
-  const q = questions[current];
-  const correct = q.correctOptionId;
-  const isRight = selected === correct;
-
-  answers.push({ selected, correct, isRight });
-
-  // Color options
-  document.querySelectorAll('.option').forEach((el, i) => {
+function pick(qi,oi){
+  if(answers[qi]!==null)return;
+  const correct=questions[qi].correctOptionId;
+  const isRight=oi===correct;
+  answers[qi]={selected:oi,correct,isRight};
+  answeredCount++;
+  const ow=document.getElementById('o'+qi);
+  ow.querySelectorAll('.opt').forEach(el=>{
     el.classList.add('disabled');
-    if (i === correct)  el.classList.add('correct');
-    if (i === selected && !isRight) el.classList.add('wrong');
+    const idx=+el.dataset.oi;
+    if(idx===correct)el.classList.add('correct');
+    if(idx===oi&&!isRight)el.classList.add('wrong');
   });
-
-  // Feedback
-  const fb = document.getElementById('feedback');
-  if (isRight) {
-    fb.className = 'feedback correct-fb show';
-    fb.innerHTML = '✅  إجابة صحيحة!';
+  if(tg)tg.HapticFeedback?.notificationOccurred(isRight?'success':'error');
+  updatePbar();
+  // scroll to next unanswered
+  const next=answers.findIndex((a,i)=>i>qi&&a===null);
+  if(next!==-1){
+    setTimeout(()=>{
+      const nc=document.getElementById('qc'+next);
+      if(nc)nc.scrollIntoView({behavior:'smooth',block:'start'});
+    },380);
   } else {
-    fb.className = 'feedback wrong-fb show';
-    fb.innerHTML = `❌  الإجابة الصحيحة: <b>${LETTERS[correct]}</b>`;
-  }
-
-  const btnNext = document.getElementById('btnNext');
-  btnNext.disabled = false;
-  btnNext.textContent = current + 1 < questions.length ? 'السؤال التالي  ›' : 'عرض النتيجة';
-  if (tg) tg.HapticFeedback?.notificationOccurred(isRight ? 'success' : 'error');
-}
-
-// ─── Back ────────────────────────────────────────────────────────────
-function goBack() {
-  if (current > 0) renderQuestion(current - 1);
-}
-
-// ─── Summary ─────────────────────────────────────────────────────────
-function showSummary() {
-  hide('quizUI');
-  const correct = answers.filter(a => a.isRight).length;
-  const wrong   = answers.length - correct;
-  const total   = answers.length;
-  const pct     = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-  document.getElementById('summaryPct').textContent    = pct + '%';
-  document.getElementById('statCorrect').textContent   = correct;
-  document.getElementById('statWrong').textContent     = wrong;
-  document.getElementById('statTotal').textContent     = total;
-  document.getElementById('summarySub').textContent    =
-    `${lectureName} — أجبت على ${total} سؤال`;
-
-  const titles = pct === 100 ? 'ممتاز! 🎉' : pct >= 80 ? 'أحسنت! 👏' : pct >= 60 ? 'جيد 👍' : 'حاول مرة أخرى 💪';
-  document.getElementById('summaryTitle').textContent = titles;
-
-  // Ring animation
-  const circ = 351.86;
-  const offset = circ - (pct / 100) * circ;
-  setTimeout(() => {
-    document.getElementById('ringCircle').style.strokeDashoffset = offset;
-  }, 100);
-
-  const summaryEl = document.getElementById('summaryScreen');
-  summaryEl.className = 'summary show';
-
-  if (tg) tg.HapticFeedback?.notificationOccurred('success');
-}
-
-// ─── Send results back to bot ─────────────────────────────────────────
-function sendResults() {
-  const correct = answers.filter(a => a.isRight).length;
-  const total   = answers.length;
-  const pct     = total > 0 ? Math.round((correct / total) * 100) : 0;
-
-  const data = JSON.stringify({
-    type:       'webapp_quiz_result',
-    lectureName,
-    subjectName,
-    total,
-    correct,
-    wrong:      total - correct,
-    accuracy:   pct,
-    answers:    answers.map(a => ({ s: a.selected, c: a.correct, ok: a.isRight }))
-  });
-
-  if (tg) {
-    tg.sendData(data);
-  } else {
-    alert(`النتيجة: ${correct}/${total} (${pct}%)`);
+    setTimeout(showSbar,450);
   }
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────
-function show(id) { document.getElementById(id).style.display = ''; }
-function hide(id) { document.getElementById(id).style.display = 'none'; }
-
-function showError(msg) {
-  hide('loading');
-  hide('quizUI');
-  document.getElementById('errorMsg').textContent = msg;
-  show('errorState');
+function updatePbar(){
+  const t=questions.length,pct=t?Math.round(answeredCount/t*100):0;
+  document.getElementById('pText').textContent=answeredCount+' / '+t+' تمت الإجابة';
+  document.getElementById('pPct').textContent=pct+'%';
+  document.getElementById('pFill').style.width=pct+'%';
 }
 
-function toArabicNum(n) {
-  return n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+function showSbar(){
+  const c=answers.filter(a=>a?.isRight).length;
+  const w=answers.filter(a=>a&&!a.isRight).length;
+  const t=answers.filter(a=>a).length;
+  const p=t?Math.round(c/t*100):0;
+  document.getElementById('sC').textContent=c;
+  document.getElementById('sW').textContent=w;
+  document.getElementById('sP').textContent=p+'%';
+  document.getElementById('sbar').classList.add('show');
+  if(tg)tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function sendResults(){
+  const c=answers.filter(a=>a?.isRight).length;
+  const t=answers.filter(a=>a).length;
+  const w=t-c,p=t?Math.round(c/t*100):0;
+  const payload=JSON.stringify({
+    type:'webapp_quiz_result',lectureName,subjectName,
+    total:t,correct:c,wrong:w,accuracy:p,
+    answers:answers.map(a=>a?{s:a.selected,c:a.correct,ok:a.isRight}:null)
+  });
+  if(tg&&tg.sendData){tg.sendData(payload);}
+  else{
+    try{navigator.clipboard.writeText(payload);}catch(e){}
+    alert('النتيجة: '+c+'/'+t+' ('+p+'%)');
+  }
+}
+
+function escH(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function show(id){document.getElementById(id).style.display='';}
+function hide(id){document.getElementById(id).style.display='none';}
+function err(msg){
+  hide('loading');hide('quizUI');
+  document.getElementById('errMsg').textContent=msg;
+  show('errState');
 }
 </script>
 </body>
