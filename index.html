@@ -145,16 +145,34 @@ function toggleTheme(){
   try{
     const p=new URLSearchParams(window.location.search);
     const key=p.get('k'),apiUrl=p.get('api');
-    if(!key||!apiUrl)return err('لم يتم استلام بيانات الأسئلة.
-افتح هذه الصفحة من خلال البوت.');
-    const res=await fetch(decodeURIComponent(apiUrl)+'/quiz?k='+encodeURIComponent(key));
-    if(!res.ok){
-      const e=await res.json().catch(()=>({}));
-      return err(e.error==='session not found or expired'?'انتهت صلاحية الجلسة.
-اطلب من البوت إرسال المحاضرة مجدداً.':'تعذّر تحميل الأسئلة.');
+    if(!key||!apiUrl)return err('لم يتم استلام بيانات الأسئلة.\nافتح هذه الصفحة من خلال البوت.');
+
+    const loadTxt=document.querySelector('.loading span');
+    if(loadTxt)loadTxt.textContent='جاري الاتصال بالسيرفر...';
+
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),15000);
+    let res;
+    try{
+      res=await fetch(decodeURIComponent(apiUrl)+'/quiz?k='+encodeURIComponent(key),{signal:controller.signal});
+      clearTimeout(timer);
+    }catch(fe){
+      clearTimeout(timer);
+      if(fe.name==='AbortError')return err('انتهت مهلة الاتصال.\nتأكد من تشغيل السيرفر وأعد المحاولة.');
+      return err('فشل الاتصال:\n'+fe.message+'\n\nتأكد من رفع البوت على Render.');
     }
+
+    if(!res.ok){
+      let e={};try{e=await res.json();}catch(x){}
+      const m=e.error||('HTTP '+res.status);
+      if(m.includes('session not found'))return err('انتهت صلاحية الجلسة.\nاطلب من البوت إرسال المحاضرة مجدداً.');
+      if(m.includes('db not ready'))return err('قاعدة البيانات لم تتصل بعد.\nانتظر 10 ثوانٍ وأعد المحاولة.');
+      return err('خطأ من السيرفر:\n'+m);
+    }
+
     const d=await res.json();
-    if(!Array.isArray(d.questions)||d.questions.length===0)return err('لا توجد أسئلة في هذه الجلسة.');
+    if(!Array.isArray(d.questions)||d.questions.length===0)
+      return err('لا توجد أسئلة طويلة في هذه الجلسة.');
     questions=d.questions;
     lectureName=d.lectureName||'المحاضرة';
     subjectName=d.subjectName||'';
@@ -164,8 +182,7 @@ function toggleTheme(){
     hide('loading');show('quizUI');
     render();updatePbar();
     if(tg){tg.setHeaderColor('#3b6fd4');tg.setBackgroundColor('#f0f2f8');}
-  }catch(e){err('خطأ في الاتصال:
-'+e.message);}
+  }catch(e){err('خطأ غير متوقع:\n'+e.message);}
 })();
 
 function render(){
