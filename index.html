@@ -381,17 +381,31 @@ const LETTERS = ['A','B','C','D','E','F'];
 // ─── Boot ────────────────────────────────────────────────────────────
 (async function boot() {
   try {
-    // البيانات تأتي من initData أو URL hash
-    const params = parseParams();
-    if (!params) return showError('لم يتم استلام بيانات الأسئلة. افتح هذه الصفحة من خلال البوت.');
+    const params = new URLSearchParams(window.location.search);
+    const key    = params.get('k');
+    const apiUrl = params.get('api');
 
-    const mcqs = params.questions;
-    if (!Array.isArray(mcqs) || mcqs.length === 0)
-      return showError('لا توجد أسئلة طويلة في هذه المحاضرة.');
+    if (!key || !apiUrl) {
+      return showError('لم يتم استلام بيانات الأسئلة. افتح هذه الصفحة من خلال البوت.');
+    }
 
-    questions   = mcqs;
-    lectureName = params.lectureName || 'المحاضرة';
-    subjectName = params.subjectName || '';
+    document.querySelector('.loading span').textContent = 'جاري تحميل الأسئلة من السيرفر...';
+
+    const res = await fetch(`${decodeURIComponent(apiUrl)}/quiz?k=${encodeURIComponent(key)}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return showError(err.error === 'session not found or expired'
+        ? 'انتهت صلاحية الرابط. اطلب من البوت إرسال المحاضرة مجدداً.'
+        : 'تعذّر تحميل الأسئلة. حاول مرة أخرى.');
+    }
+
+    const data = await res.json();
+    if (!Array.isArray(data.questions) || data.questions.length === 0)
+      return showError('لا توجد أسئلة في هذه الجلسة.');
+
+    questions   = data.questions;
+    lectureName = data.lectureName || 'المحاضرة';
+    subjectName = data.subjectName || '';
 
     document.getElementById('headerTitle').textContent = lectureName;
     document.getElementById('headerSub').textContent   = subjectName || 'أسئلة طويلة';
@@ -400,22 +414,9 @@ const LETTERS = ['A','B','C','D','E','F'];
     show('quizUI');
     renderQuestion(0);
   } catch (e) {
-    showError('خطأ في تحميل الأسئلة: ' + e.message);
+    showError('خطأ في الاتصال بالسيرفر: ' + e.message);
   }
 })();
-
-// ─── Parse params from URL hash ──────────────────────────────────────
-function parseParams() {
-  try {
-    // البيانات تُمرَّر عبر URL hash مشفرة بـ base64
-    const hash = window.location.hash.slice(1);
-    if (!hash) return null;
-    const json = decodeURIComponent(atob(hash));
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
 
 // ─── Render question ─────────────────────────────────────────────────
 function renderQuestion(idx) {
