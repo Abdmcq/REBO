@@ -252,76 +252,61 @@ function showSbar(){
   if(tg)tg.HapticFeedback?.notificationOccurred('success');
 }
 
-function sendResults(){
+async function sendResults(){
+  const btn=document.querySelector('.sendbtn');
+  if(btn){btn.textContent='⏳ جاري الإرسال...';btn.disabled=true;}
+
   const c=answers.filter(a=>a?.isRight).length;
   const t=answers.filter(a=>a).length;
   const w=t-c,p=t?Math.round(c/t*100):0;
+
   const payload={
-    type:'webapp_quiz_result',lectureName,subjectName,
+    type:'webapp_quiz_result',
+    lectureName,subjectName,
     total:t,correct:c,wrong:w,accuracy:p,
     answers:answers.map(a=>a?{s:a.selected,c:a.correct,ok:a.isRight}:null)
   };
-  const payloadStr=JSON.stringify(payload);
 
-  // الطريقة 1: web_app_data (يعمل فقط مع keyboard web_app button)
-  if(tg&&tg.sendData){
-    try{
-      tg.sendData(payloadStr);
-      return;
-    }catch(e){
-      console.log('sendData failed, trying fallback:', e);
-    }
-  }
-
-  // الطريقة 2: إرسال كرسالة نصية للبوت (يعمل دائماً)
-  // البوت يستقبلها عبر bot.hears(/^WEBAPP_RESULT:/)
-  if(tg&&tg.openTelegramLink){
-    const msg=encodeURIComponent('WEBAPP_RESULT:'+payloadStr);
-    tg.openTelegramLink('https://t.me/'+getBotUsername()+'?start=result');
-  }
-
-  // Fallback نهائي: إرسال مباشر عبر Bot API
-  sendViaApi(payloadStr,p,c,t);
-}
-
-function getBotUsername(){
-  // يُستخرج من initData إذا توفر
-  try{
-    if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.receiver){
-      return tg.initDataUnsafe.receiver.username||'';
-    }
-  }catch(e){}
-  return '';
-}
-
-async function sendViaApi(payloadStr,p,c,t){
-  // إرسال النتيجة للبوت عبر API مباشرة من الـ Mini App
   const params=new URLSearchParams(window.location.search);
   const apiUrl=params.get('api');
   const key=params.get('k');
-  if(!apiUrl||!key){
-    showResultAlert(p,c,t);
-    return;
-  }
-  try{
-    const r=await fetch(decodeURIComponent(apiUrl)+'/submit_result',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({key,result:JSON.parse(payloadStr)})
-    });
-    if(r.ok){
-      document.querySelector('.sendbtn').textContent='✅ تم الإرسال!';
-      document.querySelector('.sendbtn').disabled=true;
-    }else{
-      showResultAlert(p,c,t);
-    }
-  }catch(e){
-    showResultAlert(p,c,t);
-  }
-}
 
-function showResultAlert(p,c,t){
-  alert('النتيجة: '+c+'/'+t+' ('+p+'%)\n\nتم حفظ النتيجة محلياً.');
+  // الطريقة الوحيدة الموثوقة: POST /submit_result
+  if(apiUrl&&key){
+    try{
+      const controller=new AbortController();
+      setTimeout(()=>controller.abort(),10000);
+      const r=await fetch(decodeURIComponent(apiUrl)+'/submit_result',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({key,result:payload}),
+        signal:controller.signal
+      });
+      if(r.ok){
+        if(btn){btn.textContent='✅ تم إرسال النتائج للبوت';btn.disabled=true;btn.style.background='var(--success)';}
+        if(tg)tg.HapticFeedback?.notificationOccurred('success');
+        return;
+      }else{
+        const err=await r.json().catch(()=>({}));
+        console.error('submit_result error:',err);
+      }
+    }catch(e){
+      console.error('submit fetch error:',e.message);
+    }
+  }
+
+  // Fallback: tg.sendData (يعمل فقط إذا فُتحت من keyboard button)
+  if(tg&&tg.sendData){
+    try{
+      tg.sendData(JSON.stringify(payload));
+      if(btn){btn.textContent='✅ تم الإرسال';btn.disabled=true;}
+      return;
+    }catch(e){console.log('sendData failed:',e);}
+  }
+
+  // آخر fallback: إظهار النتيجة فقط
+  if(btn){btn.textContent='✅ النتيجة: '+c+'/'+t+' ('+p+'%)';btn.disabled=true;}
+  alert('النتيجة: '+c+'/'+t+' ('+p+'%)\n\nتعذّر إرسالها للبوت، تأكد من الاتصال.');
 }
 
 function escH(s){
